@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    platform: linux/amd64
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: recommend_db
+      MYSQL_CHARSET: utf8mb4
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./backend/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot123"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  backend:
+    build: ./backend
+    ports:
+      - "5001:5000"
+    environment:
+      DATABASE_URL: "mysql+pymysql://root:root123@db:3306/recommend_db?charset=utf8mb4"
+      REDIS_URL: "redis://redis:6379/0"
+      SECRET_KEY: "rec-system-secret-key-2024"
+      JWT_SECRET_KEY: "jwt-secret-key-2024"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: on-failure
+
+  frontend-admin:
+    build: ./frontend-admin
+    ports:
+      - "8091:80"
+    depends_on:
+      - backend
+
+  frontend-user:
+    build: ./frontend-user
+    ports:
+      - "8092:80"
+    depends_on:
+      - backend
+
+volumes:
+  mysql_data:

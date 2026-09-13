@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.env
+venv/
+*.egg
+
+# Node
+node_modules/
+dist/
+.DS_Store
+*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Docker
+mysql_data/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
+
+# Frontend build
+frontend-admin/dist/
+frontend-user/dist/
+frontend-admin/node_modules/
+frontend-user/node_modules/
+
+# 快照前的凭据与依赖排除（生成）
+.env.local
+.venv/
